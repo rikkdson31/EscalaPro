@@ -1,0 +1,6 @@
+{
+  "name": "EscalaPro",
+  "description": "Controle de escalas de trabalho, ponto e rotina.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
