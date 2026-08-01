@@ -10,7 +10,7 @@ interface ScheduleContextType {
   activeProfile: UserProfile | null;
   scheduleService: ScheduleService | null;
   isLoaded: boolean;
-  saveConfig: (config: ScheduleConfig, profileUpdates?: Partial<UserProfile>) => void;
+  saveConfig: (config: ScheduleConfig, profileUpdates?: Partial<UserProfile>) => UserProfile;
   updateProfileInfo: (updates: Partial<UserProfile>) => void;
   clearConfig: () => void;
 }
@@ -55,7 +55,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     setIsLoaded(true);
   }, []);
 
-  const saveConfig = (newConfig: ScheduleConfig, profileUpdates?: Partial<UserProfile>) => {
+  const saveConfig = (newConfig: ScheduleConfig, profileUpdates?: Partial<UserProfile>): UserProfile => {
     const now = dateService.toISODate(dateService.now());
     
     let profileToSave: UserProfile;
@@ -104,6 +104,8 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     setActiveProfile(profileToSave);
     setConfig(newConfig);
     setScheduleService(new ScheduleService(newConfig));
+
+    return profileToSave;
   };
 
   const updateProfileInfo = (updates: Partial<UserProfile>) => {

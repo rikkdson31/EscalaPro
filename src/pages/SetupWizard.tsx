@@ -49,17 +49,18 @@ export function SetupWizard() {
       referenceDate,
       referenceCycleDay
     };
-    saveConfig(config, {
+    const profile = saveConfig(config, {
       nome,
       apelido,
       cargo
     });
     
-    if (session) {
-      const activeProfile = storageService.getActiveProfile();
-      if (activeProfile) {
-        await performInitialCloudUpload(session.user.id, activeProfile, config);
-      }
+    if (session && profile) {
+      await performInitialCloudUpload(
+        session.user.id,
+        profile,
+        config
+      );
     }
   };
 

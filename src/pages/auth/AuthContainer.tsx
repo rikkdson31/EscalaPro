@@ -31,13 +31,19 @@ export function AuthContainer() {
         if (password !== confirmPassword) {
           throw new Error('As senhas não coincidem.');
         }
-        const { error } = await supabase.auth.signUp({
+        console.log('1. email enviado:', email);
+        const response = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { nome }
           }
         });
+        console.log('2. resposta completa:', response);
+        console.log('3. data:', response.data);
+        console.log('4. error:', response.error);
+        console.log('5. status:', response?.error?.status || (response as any).status);
+        const { error } = response;
         if (error) throw error;
         // Optionally switch to login or notify user to check email
         alert('Cadastro realizado! Se o e-mail não exigir confirmação, você já está logado.');
@@ -67,8 +73,17 @@ export function AuthContainer() {
     }
   };
 
+    const supabaseUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_SUPABASE_URL : '';
+  const supabaseAnonKey = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_SUPABASE_ANON_KEY : '';
+
   return (
-    <div className="flex h-screen items-center justify-center bg-slate-50 p-4">
+    <div className="flex flex-col h-screen bg-slate-50 relative">
+      <div className="bg-yellow-100 p-2 text-xs text-yellow-800 font-mono text-center border-b border-yellow-200 z-50 shrink-0">
+        <div>SUPABASE_URL: {supabaseUrl || 'undefined'}</div>
+        <div>SUPABASE_KEY_INICIO: {supabaseAnonKey ? supabaseAnonKey.substring(0, 20) + '...' : 'undefined'}</div>
+        <div>URL_VALIDA: {supabaseUrl === 'https://placeholder.supabase.co' || !supabaseUrl ? 'PLACEHOLDER' : 'REAL'}</div>
+      </div>
+      <div className="flex-1 flex items-center justify-center p-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -202,6 +217,7 @@ export function AuthContainer() {
           </button>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }
