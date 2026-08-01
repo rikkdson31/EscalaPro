@@ -14,19 +14,11 @@ export function CycleSummaryCard({ scheduleService, todayDate, config }: CycleSu
   const todayInfo = scheduleService.getDayInfo(todayDate);
   const isWorkDay = todayInfo.tipo === 'TRABALHO';
   
-  // Quick forwards loop to find days until change
-  let remainingDays = 0;
-  for (let i = 1; i < 30; i++) {
-    const d = new Date(todayDate);
-    d.setDate(d.getDate() + i);
-    const info = scheduleService.getDayInfo(d);
-    if (info.tipo === todayInfo.tipo) {
-      remainingDays++;
-    } else {
-      break;
-    }
-  }
-  
+  // Quick forward calculation to find days until change using central function
+  const remainingDays = isWorkDay 
+    ? scheduleService.getDaysUntilNextOff(todayDate) - 1
+    : scheduleService.getDaysUntilNextWork(todayDate) - 1;
+
   return (
     <Card className="shadow-sm h-full">
       <CardContent className="p-5 flex flex-col justify-between h-full">

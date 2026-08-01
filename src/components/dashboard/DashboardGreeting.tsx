@@ -19,7 +19,7 @@ export function DashboardGreeting({ activeProfile, config, scheduleService }: Da
     return 'Boa noite';
   };
 
-  const name = activeProfile?.nome.split(' ')[0] || 'Usuário';
+  const name = activeProfile?.apelido || activeProfile?.nome.split(' ')[0] || 'Usuário';
   const todayStr = dateService.formatExtenso(dateService.now());
 
   let currentStatus = null;
@@ -61,7 +61,7 @@ export function DashboardGreeting({ activeProfile, config, scheduleService }: Da
               <span className="text-xs font-semibold text-slate-500 tracking-wide uppercase">Ciclo Atual</span>
               <div className="flex items-end gap-1.5 mt-2">
                 {nextDays.map((day, i) => {
-                  const isTypeChange = i > 0 && nextDays[i - 1].tipo !== day.tipo;
+                  const isTypeChange = i > 0 && day.posicaoCiclo === 1;
                   const shortWeekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
                   const weekdayStr = shortWeekdays[dateService.dayOfWeekIndex(day.data)];
                   return (

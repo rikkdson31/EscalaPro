@@ -9,7 +9,8 @@ interface ScheduleContextType {
   config: ScheduleConfig | null;
   activeProfile: UserProfile | null;
   scheduleService: ScheduleService | null;
-  saveConfig: (config: ScheduleConfig) => void;
+  isLoaded: boolean;
+  saveConfig: (config: ScheduleConfig, profileUpdates?: Partial<UserProfile>) => void;
   updateProfileInfo: (updates: Partial<UserProfile>) => void;
   clearConfig: () => void;
 }
@@ -27,6 +28,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
   const [activeProfile, setActiveProfile] = useState<UserProfile | null>(null);
   const [config, setConfig] = useState<ScheduleConfig | null>(null);
   const [scheduleService, setScheduleService] = useState<ScheduleService | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const mapProfileToConfig = (profile: UserProfile): ScheduleConfig => {
     return {
@@ -50,9 +52,10 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
       setConfig(schedConfig);
       setScheduleService(new ScheduleService(schedConfig));
     }
+    setIsLoaded(true);
   }, []);
 
-  const saveConfig = (newConfig: ScheduleConfig) => {
+  const saveConfig = (newConfig: ScheduleConfig, profileUpdates?: Partial<UserProfile>) => {
     const now = dateService.toISODate(dateService.now());
     
     let profileToSave: UserProfile;
@@ -70,6 +73,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
         posicaoInicialCiclo: newConfig.referenceCycleDay,
         exibirMensagensAssistente: newConfig.exibirMensagensAssistente,
         ultimaAtualizacao: now,
+        ...(profileUpdates || {})
       };
     } else {
       profileToSave = {
@@ -87,6 +91,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
         exibirMensagensAssistente: newConfig.exibirMensagensAssistente !== undefined ? newConfig.exibirMensagensAssistente : true,
         dataCriacao: now,
         ultimaAtualizacao: now,
+        ...(profileUpdates || {})
       };
     }
 
@@ -116,7 +121,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ScheduleContext.Provider value={{ config, activeProfile, scheduleService, saveConfig, updateProfileInfo, clearConfig }}>
+    <ScheduleContext.Provider value={{ config, activeProfile, scheduleService, isLoaded, saveConfig, updateProfileInfo, clearConfig }}>
       {children}
     </ScheduleContext.Provider>
   );

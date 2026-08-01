@@ -30,7 +30,11 @@ export class IndexedDBProvider implements StorageProvider {
   public get<T>(key: string): T | null {
     const val = this.getRaw(key);
     if (!val) return null;
-    try { return JSON.parse(val) as T; } catch { return null; }
+    try { 
+      return JSON.parse(val) as T; 
+    } catch { 
+      return val as unknown as T; 
+    }
   }
 
   public getRaw(key: string): string | null {
@@ -41,7 +45,7 @@ export class IndexedDBProvider implements StorageProvider {
   }
 
   public set<T>(key: string, value: T): void {
-    const toSave = typeof value === 'string' ? value : JSON.stringify(value);
+    const toSave = JSON.stringify(value);
     this.setRaw(key, toSave);
   }
 

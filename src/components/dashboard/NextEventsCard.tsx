@@ -11,32 +11,15 @@ interface NextEventsCardProps {
 }
 
 export function NextEventsCard({ scheduleService, todayDate }: NextEventsCardProps) {
-  let nextWork: DayInfo | null = null;
-  let nextOff: DayInfo | null = null;
-  let cycleChange: DayInfo | null = null;
-  
+
   const todayInfo = scheduleService.getDayInfo(todayDate);
   const isWorkToday = todayInfo.tipo === 'TRABALHO';
   
-  const MAX_LOOKAHEAD = 60;
-  for (let i = 1; i <= MAX_LOOKAHEAD; i++) {
-    const d = dateService.addDays(todayDate, i);
-    const info = scheduleService.getDayInfo(d);
-    
-    if (!nextWork && info.tipo === 'TRABALHO') {
-      nextWork = info;
-    }
-    if (!nextOff && info.tipo === 'FOLGA') {
-      nextOff = info;
-    }
-    
-    if (!cycleChange && info.tipo !== todayInfo.tipo) {
-      cycleChange = info;
-    }
-    
-    if (nextWork && nextOff && cycleChange) break;
-  }
-  
+  // Uses central function, avoiding loops
+  const nextWork = scheduleService.getNextWorkDay(todayDate);
+  const nextOff = scheduleService.getNextOffDay(todayDate);
+  const cycleChange = isWorkToday ? nextOff : nextWork;
+
   const formatShort = (d: Date) => {
     return dateService.formatDDMM(d) + ' (' + dateService.formatWeekdayShort(d) + ')';
   };

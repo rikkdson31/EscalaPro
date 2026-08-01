@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+const content = `import React, { useState } from 'react';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useSchedule } from '../contexts/ScheduleContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { dateService } from '../services/DateService';
-import { useAuth } from '../contexts/AuthContext';
-import { storageService } from '../services/StorageService';
-import { performInitialCloudUpload } from '../cloud/InitialSync';
 import { ChevronRight, ChevronLeft, Check, User, Briefcase, Calendar } from 'lucide-react';
 
 export function SetupWizard() {
-  const { saveConfig } = useSchedule();
-  const { session } = useAuth();
+  const { saveConfig, updateProfileInfo } = useSchedule();
   
   const [step, setStep] = useState(1);
   
@@ -37,9 +34,9 @@ export function SetupWizard() {
   const handleNext = () => setStep(s => Math.min(3, s + 1));
   const handlePrev = () => setStep(s => Math.max(1, s - 1));
 
-  const handleFinish = async (e: React.FormEvent) => {
+  const handleFinish = (e: React.FormEvent) => {
     e.preventDefault();
-    const config = {
+    saveConfig({
       empresa,
       cliente,
       tipoEscala,
@@ -48,19 +45,11 @@ export function SetupWizard() {
       saida,
       referenceDate,
       referenceCycleDay
-    };
-    saveConfig(config, {
-      nome,
-      apelido,
-      cargo
     });
-    
-    if (session) {
-      const activeProfile = storageService.getActiveProfile();
-      if (activeProfile) {
-        await performInitialCloudUpload(session.user.id, activeProfile, config);
-      }
-    }
+    // Give context time to update active profile before modifying it
+    setTimeout(() => {
+      updateProfileInfo({ nome, apelido, cargo });
+    }, 50);
   };
 
   return (
@@ -69,13 +58,13 @@ export function SetupWizard() {
         <div className="flex justify-between items-center relative">
           <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-slate-200 -z-10" />
           
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border-2 border-slate-200'}`}>
+          <div className={\`w-10 h-10 rounded-full flex items-center justify-center \${step >= 1 ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border-2 border-slate-200'}\`}>
             <User size={20} />
           </div>
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border-2 border-slate-200'}`}>
+          <div className={\`w-10 h-10 rounded-full flex items-center justify-center \${step >= 2 ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border-2 border-slate-200'}\`}>
             <Briefcase size={20} />
           </div>
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border-2 border-slate-200'}`}>
+          <div className={\`w-10 h-10 rounded-full flex items-center justify-center \${step >= 3 ? 'bg-slate-900 text-white' : 'bg-white text-slate-400 border-2 border-slate-200'}\`}>
             <Calendar size={20} />
           </div>
         </div>
@@ -285,3 +274,5 @@ export function SetupWizard() {
     </div>
   );
 }
+`;
+fs.writeFileSync('src/pages/SetupWizard.tsx', content);

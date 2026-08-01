@@ -19,27 +19,11 @@ export function CycleOverviewCard({ scheduleService, config, activeProfile }: Cy
   const todayInfo = scheduleService.getDayInfo(today);
   const isWorkDay = todayInfo.tipo === 'TRABALHO';
   
-  // Find next event (next shift if today is off, next off if today is work)
-  let nextEventDate = today;
-  let nextEventInfo = todayInfo;
-  
-  const MAX_LOOKAHEAD = 30;
-  for (let i = 1; i <= MAX_LOOKAHEAD; i++) {
-    const d = dateService.addDays(today, i);
-    const info = scheduleService.getDayInfo(d);
-    
-    if (isWorkDay && info.tipo === 'FOLGA') {
-      nextEventDate = d;
-      nextEventInfo = info;
-      break;
-    }
-    
-    if (!isWorkDay && info.tipo === 'TRABALHO') {
-      nextEventDate = d;
-      nextEventInfo = info;
-      break;
-    }
-  }
+  // Find next event (next shift if today is off, next off if today is work) using central function
+  const nextEventInfo = isWorkDay 
+    ? scheduleService.getNextOffDay(today) 
+    : scheduleService.getNextWorkDay(today);
+  const nextEventDate = nextEventInfo.data;
 
   const getDayName = (date: Date) => {
     if (dateService.isTomorrow(date)) return 'Amanhã';

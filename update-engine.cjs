@@ -1,4 +1,6 @@
-import { ScheduleConfig, DayInfo, DayType } from './types';
+const fs = require('fs');
+
+const content = `import { ScheduleConfig, DayInfo, DayType } from './types';
 import { dateService } from '../services/DateService';
 
 export interface ScaleStatus {
@@ -42,12 +44,10 @@ export class ScheduleEngine {
     const cycleLength = this.getCycleLength();
     const workDays = this.getWorkDaysCount();
     
-    // Converte explicitamente para Number para evitar erro de concatenação de string
-    // Onde "0" + -1 virava "0-1" resultando em NaN e quebrando a escala (tratando como Folga)
-    const refCycleDay = Number(this.config.referenceCycleDay);
-    
-    // Cálculo seguro de módulo que resolve corretamente diferenças de dias negativas
-    let pos = ((refCycleDay + diff) % cycleLength + cycleLength) % cycleLength;
+    let pos = (this.config.referenceCycleDay + diff) % cycleLength;
+    if (pos < 0) {
+      pos += cycleLength;
+    }
     
     const isWork = pos < workDays;
     const posicaoNoTipo = isWork ? pos + 1 : (pos - workDays) + 1;
@@ -76,7 +76,7 @@ export class ScheduleEngine {
     const { isWork, posicaoNoTipo } = this.getCentralScaleInfo(date);
     
     const tipo: DayType = isWork ? 'TRABALHO' : 'FOLGA';
-    const posicaoLabel = `${posicaoNoTipo}º ${isWork ? 'Trabalho' : 'Folga'}`;
+    const posicaoLabel = \`\${posicaoNoTipo}º \${isWork ? 'Trabalho' : 'Folga'}\`;
 
     return {
       data: date,
@@ -150,3 +150,5 @@ export class ScheduleEngine {
     return days;
   }
 }
+`;
+fs.writeFileSync('src/engine/ScheduleEngine.ts', content);

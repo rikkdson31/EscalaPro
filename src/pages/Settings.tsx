@@ -1,5 +1,7 @@
 import { Card, CardContent } from '../components/ui/Card';
 import { BackupSettings } from '../components/BackupSettings';
+import { useAuth } from '../contexts/AuthContext';
+import { LogOut } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Save, RefreshCw, Camera, User } from 'lucide-react';
 import React, { useRef } from 'react';
@@ -9,6 +11,7 @@ import { useState } from 'react';
 
 export function Settings() {
   const { config, activeProfile, saveConfig, updateProfileInfo, clearConfig } = useSchedule();
+  const { session, signOut, setOfflineMode } = useAuth();
 
   
   const [nome, setNome] = useState(activeProfile?.nome || '');
@@ -301,6 +304,34 @@ export function Settings() {
         <h2 className="text-xl font-bold text-slate-900 mb-2">Backup e Restauração</h2>
         <p className="text-sm text-slate-600 mb-4">Gerencie cópias de segurança dos seus dados offline.</p>
         <BackupSettings />
+      </div>
+  
+      
+      <div className="mt-8 mb-4">
+        <h2 className="text-xl font-bold text-slate-900 mb-2">Conta e Sincronização</h2>
+        {session ? (
+          <Card>
+            <CardContent className="p-5 flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-slate-900">Autenticado como</p>
+                <p className="text-sm text-slate-600">{session.user.email}</p>
+              </div>
+              <Button onClick={() => signOut()} variant="outline" className="text-slate-700">
+                <LogOut size={16} className="mr-2" />
+                Sair
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="p-5 flex flex-col items-center text-center space-y-3">
+              <p className="text-sm text-slate-600">Você está utilizando o aplicativo apenas localmente. Faça login para habilitar a sincronização na nuvem.</p>
+              <Button onClick={() => setOfflineMode(false)} variant="outline" className="text-slate-700 w-full sm:w-auto">
+                Fazer Login
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
   
       <Button onClick={handleSave} className="w-full gap-2 mt-4" size="lg">

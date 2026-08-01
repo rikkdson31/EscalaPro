@@ -5,7 +5,11 @@ export class LocalStorageProvider implements StorageProvider {
     try {
       const item = localStorage.getItem(key);
       if (!item) return null;
-      return JSON.parse(item) as T;
+      try {
+        return JSON.parse(item) as T;
+      } catch (e) {
+        return item as unknown as T;
+      }
     } catch (e) {
       console.warn(`Failed to parse key ${key} from localStorage`, e);
       return null;
@@ -18,7 +22,7 @@ export class LocalStorageProvider implements StorageProvider {
 
   public set<T>(key: string, value: T): void {
     try {
-      const toSave = typeof value === 'string' ? value : JSON.stringify(value);
+      const toSave = JSON.stringify(value);
       localStorage.setItem(key, toSave);
     } catch (e) {
       console.error(`Error saving ${key} to localStorage`, e);
